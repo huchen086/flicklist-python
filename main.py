@@ -1,31 +1,48 @@
 import webapp2
-import random
+
+header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FlickList</title>
+</head>
+<body>
+    <h1>FlickList</h1>
+"""
+
+footer = """
+</body>
+</html>
+"""
 
 class Index(webapp2.RequestHandler):
 
-    def getRandomMovie(self):
+    def get(self):
+        form = """
+            <h3>Edit My Watchlist</h3>
+            <form action="/add" method="post">
+                <lable>I would like to add
+                <input type="text" name="new-movie"/>
+                to my watchlist.
+                </lable>
+                <input type="submit" value="Add it!"/>
+            </form>
+		"""
 
-        # list of movies to select from
-        movies = ["The Big Lebowski", "Blue Velvet", "Toy Story", "Star Wars", "Amelie"]
+        self.response.write(header + form + footer)
 
-        # randomly choose one of the movies
-        randomIdx = random.randrange(len(movies))
-
-        return movies[randomIdx]
+class AddMovie(webapp2.RequestHandler):
 
     def get(self):
-        # add Movie of the Day to the response string
-        movie = self.getRandomMovie()
-        content = "<h1>Movie of the Day</h1>"
-        content += "<p>" + movie + "</p>"
+        self.response.write("Shouldn't taken a left turn at ALberqueque.")
 
-        # add Tomorrow's Movie to the response string
-        tomorrow_movie = self.getRandomMovie()
-        content += "<h1>Tomorrow's Movie</h1>"
-        content += "<p>" + tomorrow_movie + "</p>"
+    def post(self):
+        moviename = self.request.get("new-movie")
+        successmsg = "<strong>" + moviename + "</strong> has been posted to your list."
 
-        self.response.write(content)
+        self.response.write(header + successmsg + footer)
 
 app = webapp2.WSGIApplication([
-    ('/', Index)
+    ('/', Index),
+    ('/add', AddMovie)
 ], debug=True)
