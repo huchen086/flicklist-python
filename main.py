@@ -18,14 +18,22 @@ page_footer = """
 </html>
 """
 
+def getCurrentListOfMovies():
+    return ['Star Wars', 'Minions', 'Freaky Friday', 'My Favorite Martian']
+
 class Index(webapp2.RequestHandler):
     """ Handles requests coming in to '/' (the root of our site)
         e.g. www.flicklist.com/
     """
 
+
     def get(self):
 
         edit_header = "<h3>Edit My Watchlist</h3>"
+
+        movieOptions = ''
+        for movie in getCurrentListOfMovies():
+            movieOptions += '<option value="{0}">{0}</option>'.format(movie)
 
         # a form for adding new movies
         add_form = """
@@ -45,18 +53,21 @@ class Index(webapp2.RequestHandler):
             <label>
                 I want to cross off
                 <select name="crossed-off-movie"/>
-                    <option value="Star Wars">Star Wars</option>
-                    <option value="Minions">Minions</option>
-                    <option value="Freaky Friday">Freaky Friday</option>
-                    <option value="My Favorite Martian">My Favorite Martian</option>
+                    {0}
+                    <option value="NotOnList">NotOnList</option>
                 </select>
                 from my watchlist.
             </label>
             <input type="submit" value="Cross It Off"/>
         </form>
-        """
+        """.format(movieOptions)
 
-        page_content = edit_header + add_form + crossoff_form
+        errorMsg = self.request.get("error")
+        errorDiv = ""
+        if errorMsg:
+            errorDiv = "<div>" + errorMsg + "</div>"
+
+        page_content = edit_header + add_form + crossoff_form + errorDiv
         content = page_header + page_content + page_footer
         self.response.write(content)
 
@@ -87,6 +98,9 @@ class CrossOffMovie(webapp2.RequestHandler):
     def post(self):
         # look inside the request to figure out what the user typed
         crossed_off_movie = self.request.get("crossed-off-movie")
+
+        if crossed_off_movie not in getCurrentListOfMovies():
+            self.redirect("/?error={0} is not on your list of movies".format(crossed_off_movie))
 
         # build response content
         crossed_off_movie_element = "<strike>" + crossed_off_movie + "</strike>"
