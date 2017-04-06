@@ -96,9 +96,16 @@ class WatchedMovie(webapp2.RequestHandler):
         content = t.render(movie = watched_movie)
         self.response.write(content)
 
+class RateMovie(webapp2.RequestHandler):
+
+    def get(self):
+        t = jinja_env.get_template("ratemovies.html")
+        content = t.render(movies = getWatchedMovies())
+        self.response.write(content)
 
 app = webapp2.WSGIApplication([
     ('/', Index),
     ('/add', AddMovie),
-    ('/watched-it', WatchedMovie)
+    ('/watched-it', WatchedMovie),
+    ('/rate', RateMovie)
 ], debug=True)
