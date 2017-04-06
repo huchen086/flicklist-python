@@ -1,7 +1,6 @@
 import webapp2
 import cgi
 
-# html boilerplate for the top of every page
 page_header = """
 <!DOCTYPE html>
 <html>
@@ -19,7 +18,6 @@ page_header = """
     </h1>
 """
 
-# html boilerplate for the bottom of every page
 page_footer = """
 </body>
 </html>
