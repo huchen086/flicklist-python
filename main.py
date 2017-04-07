@@ -107,6 +107,21 @@ class MovieRatings(webapp2.RequestHandler):
     # TODO 2
     # implement a post method inside this class
     # it should render the rating-confirmation.html template
+    def renderError(self, error_code):
+        self.error(error_code)
+        self.response.write("Oops! Something went wrong.")
+
+    def post(self):
+        rated_movie = self.request.get("movie")
+        rating = self.request.get("rating")
+
+        if not rated_movie or rating == "":
+            self.renderError(400)
+            return
+
+        t = jinja_env.get_template("rating-confirmation.html")
+        content = t.render(movie = rated_movie, rating=rating)
+        self.response.write(content)
 
 
 

@@ -7,6 +7,18 @@
 {% for movie in movies %}
     <li>
         <h3>{{ movie }}</h3>
+        <form action="/ratings" method="post">
+            <label>My Rating
+                <select name="rating">
+                    <option selected disabled>How was it?</option>
+                    {% for rate in range(1,6) %}
+                        <option value="{{rate*"*"}}">{{rate*"*"}}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <input type="hidden" name="movie" value="{{movie}}">
+            <input type="submit" value="Rate it!">
+        </form>
 
         <!--
         TODO 3
