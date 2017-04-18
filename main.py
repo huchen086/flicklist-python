@@ -37,47 +37,6 @@ class Handler(webapp2.RequestHandler):
         self.error(error_code)
         self.response.write("Oops! Something went wrong.")
 
-<<<<<<< HEAD
-    def login_user(self, user):
-        """ Logs in a user specified by a User object """
-        user_id = user.key().id()
-        self.set_secure_cookie('user_id', str(user_id))
-
-    def logout_user(self):
-        """ Logs out the current user """
-        self.set_secure_cookie('user_id', '')
-
-    def read_secure_cookie(self, name):
-        """ Returns the value associated with a name in the user's cookie,
-            or returns None, if no value was found or the value is not valid
-        """
-        cookie_val = self.request.cookies.get(name)
-        if cookie_val:
-            return hashutils.check_secure_val(cookie_val)
-
-    def set_secure_cookie(self, name, val):
-        """ Adds a secure name-value pair cookie to the response """
-        cookie_val = hashutils.make_secure_val(val)
-        self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (name, cookie_val))
-
-    def initialize(self, *a, **kw):
-        """ Any subclass of webapp2.RequestHandler can implement a method called 'initialize'
-            to specify what should happen before handling a request.
-
-            Here, we use it to ensure that the user is logged in.
-            If not, and they try to visit a page that requires an logging in (like /ratings),
-            then we redirect them to the /login page
-        """
-        webapp2.RequestHandler.initialize(self, *a, **kw)
-        uid = self.read_secure_cookie('user_id')
-        self.user = uid and User.get_by_id(int(uid))
-
-        if not self.user and self.request.path not in allowed_routes:
-            self.redirect('/login')
-            return
-
-=======
->>>>>>> upstream/studio8
     def get_user_by_name(self, username):
         """ Given a username, try to fetch the user from the database """
         user = db.GqlQuery("SELECT * from User WHERE username = '%s'" % username)
@@ -93,25 +52,14 @@ class Index(Handler):
     def get(self):
         """ Display the homepage (the list of unwatched movies) """
 
-<<<<<<< HEAD
-        # TODO 1
-        # We only want the Movies belonging to the current user
-        # Modify the query below.
-        # Instead of a GqlQuery, use an O.R.M. method like lines 186 and 187
-=======
         # query for all the movies that have not yet been watched
->>>>>>> upstream/studio8
         unwatched_movies = db.GqlQuery("SELECT * FROM Movie WHERE watched = False")
 
         t = jinja_env.get_template("frontpage.html")
         content = t.render(
                         movies = unwatched_movies,
-<<<<<<< HEAD
-                        error = self.request.get("error"))
-=======
                         error = self.request.get("error"),
                         message = self.request.get("message"))
->>>>>>> upstream/studio8
         self.response.write(content)
 
 
@@ -210,31 +158,6 @@ class MovieRatings(Handler):
             self.renderError(400)
 
 
-<<<<<<< HEAD
-class RecentlyWatchedMovies(Handler):
-    """ Handles requests coming in to '/recently-watched'
-    """
-
-    def get(self):
-        """ Display a list of movies that have recently been watched (by any user) """
-
-        # query for watched movies (by any user), sorted by how recently the movie was watched
-        query = Movie.all().filter("watched", True).order("-datetime_watched")
-        # get the first 20 results
-        recently_watched_movies = query.fetch(limit = 20)
-
-        # TODO 4
-        # Replace the code below with code that renders the 'recently-watched.html' template
-        # Don't forget to pass recently_watched_movies over to your template.
-        content = ""
-        for movie in recently_watched_movies:
-            content += movie.title + ", "
-
-        self.response.write(content)
-
-
-=======
->>>>>>> upstream/studio8
 class Login(Handler):
 
     def render_login_form(self, error=""):
@@ -343,13 +266,6 @@ app = webapp2.WSGIApplication([
     ('/add', AddMovie),
     ('/watched-it', WatchedMovie),
     ('/ratings', MovieRatings),
-<<<<<<< HEAD
-
-    # TODO 3
-    # include another route for recently watched movies
-
-=======
->>>>>>> upstream/studio8
     ('/login', Login),
     ('/register', Register)
 ], debug=True)
