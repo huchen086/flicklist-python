@@ -43,6 +43,13 @@ class Handler(webapp2.RequestHandler):
         if user:
             return user.get()
 
+    def read_cookie(self, name):
+        val = self.request.cookies.get('my_cookie')
+        return val
+
+    #def set_cookie(self, name, val):
+
+
 
 class Index(Handler):
     """ Handles requests coming in to '/' (the root of our site)
