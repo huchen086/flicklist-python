@@ -1,8 +1,5 @@
 import webapp2, cgi, jinja2, os, re
 from google.appengine.ext import db
-from datetime import datetime
-import hashutils
-
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -16,19 +13,10 @@ terrible_movies = [
     "Nine Lives"
 ]
 
-# a list of pages that anyone is allowed to visit
-# (any others require logging in)
-allowed_routes = [
-    "/login",
-    "/logout",
-    "/register"
-]
-
-
 class User(db.Model):
     """ Represents a user on our site """
     username = db.StringProperty(required = True)
-    pw_hash = db.StringProperty(required = True)
+    password = db.StringProperty(required = True)
 
 
 class Movie(db.Model):
@@ -36,9 +24,7 @@ class Movie(db.Model):
     title = db.StringProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     watched = db.BooleanProperty(required = True, default = False)
-    datetime_watched = db.DateTimeProperty()
     rating = db.StringProperty()
-    owner = db.ReferenceProperty(User, required = True)
 
 
 class Handler(webapp2.RequestHandler):
@@ -51,6 +37,7 @@ class Handler(webapp2.RequestHandler):
         self.error(error_code)
         self.response.write("Oops! Something went wrong.")
 
+<<<<<<< HEAD
     def login_user(self, user):
         """ Logs in a user specified by a User object """
         user_id = user.key().id()
@@ -89,6 +76,8 @@ class Handler(webapp2.RequestHandler):
             self.redirect('/login')
             return
 
+=======
+>>>>>>> upstream/studio8
     def get_user_by_name(self, username):
         """ Given a username, try to fetch the user from the database """
         user = db.GqlQuery("SELECT * from User WHERE username = '%s'" % username)
@@ -104,16 +93,25 @@ class Index(Handler):
     def get(self):
         """ Display the homepage (the list of unwatched movies) """
 
+<<<<<<< HEAD
         # TODO 1
         # We only want the Movies belonging to the current user
         # Modify the query below.
         # Instead of a GqlQuery, use an O.R.M. method like lines 186 and 187
+=======
+        # query for all the movies that have not yet been watched
+>>>>>>> upstream/studio8
         unwatched_movies = db.GqlQuery("SELECT * FROM Movie WHERE watched = False")
 
         t = jinja_env.get_template("frontpage.html")
         content = t.render(
                         movies = unwatched_movies,
+<<<<<<< HEAD
                         error = self.request.get("error"))
+=======
+                        error = self.request.get("error"),
+                        message = self.request.get("message"))
+>>>>>>> upstream/studio8
         self.response.write(content)
 
 
@@ -143,7 +141,7 @@ class AddMovie(Handler):
         new_movie_title_escaped = cgi.escape(new_movie_title, quote=True)
 
         # construct a movie object for the new movie
-        movie = Movie(title = new_movie_title_escaped, owner = self.user)
+        movie = Movie(title = new_movie_title_escaped)
         movie.put()
 
         # render the confirmation message
@@ -169,7 +167,6 @@ class WatchedMovie(Handler):
 
         # update the movie object to say the user watched it at this date in time
         watched_movie.watched = True
-        watched_movie.datetime_watched = datetime.now()
         watched_movie.put()
 
         # render confirmation page
@@ -185,9 +182,8 @@ class MovieRatings(Handler):
     def get(self):
         """ Show a list of the movies the user has already watched """
 
-        # query for movies that the current user has already watched
-        query = Movie.all().filter("owner", self.user).filter("watched", True)
-        watched_movies = query.run()
+        # query for movies that have already been watched
+        watched_movies = db.GqlQuery("SELECT * FROM Movie WHERE watched = True")
 
         t = jinja_env.get_template("ratings.html")
         content = t.render(movies = watched_movies)
@@ -214,6 +210,7 @@ class MovieRatings(Handler):
             self.renderError(400)
 
 
+<<<<<<< HEAD
 class RecentlyWatchedMovies(Handler):
     """ Handles requests coming in to '/recently-watched'
     """
@@ -236,6 +233,8 @@ class RecentlyWatchedMovies(Handler):
         self.response.write(content)
 
 
+=======
+>>>>>>> upstream/studio8
 class Login(Handler):
 
     def render_login_form(self, error=""):
@@ -255,19 +254,11 @@ class Login(Handler):
         user = self.get_user_by_name(submitted_username)
         if not user:
             self.render_login_form(error = "Invalid username")
-        elif not hashutils.valid_pw(submitted_username, submitted_password, user.pw_hash):
+        elif submitted_password != user.password:
             self.render_login_form(error = "Invalid password")
         else:
-            self.login_user(user)
-            self.redirect("/")
-
-
-class Logout(Handler):
-
-    def get(self):
-        """ User is trying to log out """
-        self.logout_user()
-        self.redirect("/login")
+            self.redirect("/?message=Welcome " + user.username + "!")
+            return
 
 
 class Register(Handler):
@@ -324,11 +315,8 @@ class Register(Handler):
             has_error = True
         elif (username and password and verify):
             # create new user object
-            pw_hash = hashutils.make_pw_hash(username, password)
-            user = User(username=username, pw_hash=pw_hash)
+            user = User(username=username, password=password)
             user.put()
-
-            self.login_user(user)
         else:
             has_error = True
 
@@ -347,6 +335,7 @@ class Register(Handler):
             self.response.out.write(content)
         else:
             self.redirect('/')
+            return
 
 
 app = webapp2.WSGIApplication([
@@ -354,11 +343,13 @@ app = webapp2.WSGIApplication([
     ('/add', AddMovie),
     ('/watched-it', WatchedMovie),
     ('/ratings', MovieRatings),
+<<<<<<< HEAD
 
     # TODO 3
     # include another route for recently watched movies
 
+=======
+>>>>>>> upstream/studio8
     ('/login', Login),
-    ('/logout', Logout),
     ('/register', Register)
 ], debug=True)
